@@ -22,5 +22,38 @@ inline void destroy(T* pointer)
 }
 
 
+/**
+ *  接受两个迭代器并对特定类型进行优化dstr()
+*/
+template<typename ForwardIterator>
+inline void destroy(ForwardIterator first, ForwardIterator last)
+{
+    __destroy(first, last, value_type(first));
+}
+
+template<typename ForwardIterator, typename T>
+inline void __destroy(ForwardIterator first, ForwardIterator last, T*)
+{
+    typedef typename __type_traits<T>::has_trivial_destructor trivial_destructor;
+    __destroy_aux(first, last, trivial_destructor());
+}
+
+//value type 如果有 non-trivial destructor
+template<typename ForwardIterator>
+inline void __destroy_aux(ForwardIterator first, ForwardIterator last, __false_type)
+{
+    for( ; first < last; ++first)
+    {
+        destroy(&(*first));
+    }
+}
+
+//value type 如果有 trivial destructor
+template<typename ForwardIterator>
+inline void __destroy_aux(ForwardIterator first, ForwardIterator last, __true_type)
+{
+    // 什么都不用做
+}
+
 
 #endif
