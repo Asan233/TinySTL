@@ -232,7 +232,8 @@ void __default_alloc_template<inst>::deallocate(void *p, size_t n)
 /**
  *  假如 free list 中已经没有可用空间时
  *  refill 重新填充 free list
- *  新的空间将取自内存池( 由chunk_alloc()维护 )
+ *  新的空间将取自内存池( 由chunk_alloc()维护 )，从chunk_alloc()中取出的是一块连续的内存空间
+ *  取出后自己进行将空间连接成 free list
 */
 // 假设 n 已经被上调至8的倍数
 template<int inst>
@@ -269,6 +270,79 @@ void * __default_alloc_template<inst>::refill(size_t n) {
     }
     return result;
 }
+
+/**
+ *  内存池
+ *  从内存池中取出空间给 free list 是 chunk_alloc() 工作
+ *  size已经是8的倍数，nbojs 通过引用传递，表示实际分配的空间数量
+*/
+template<int inst>
+char * __default_alloc_template<inst>::chunk_alloc(size_t size, int & nbojs)
+{
+    char * result;
+    size_t total_bytes = size * nbojs;
+    size_t bytes_left = end_free - start_free;
+
+    if(bytes_left >= total_bytes) {
+        // 如果内存池剩余空间满足要求
+        result = start_free;
+        start_free += total_bytes;
+        return (result);
+    } else if (bytes_left >= size) {
+        // 内存池容量不能完全满足要求，但是至少能配出一个size大小空间
+        nbojs = bytes_left / size;
+        total_bytes = nbojs * size;
+        result = start_free;
+        start_free += total_bytes;
+        return (result);
+    }else {
+        // 内存池中空间连一块 size 大小空间都分配不出来
+        // 需要向系统申请空间，申请大小一般为 2 * total_bytes + heap_size >> 4 大小
+        size_t bytes_to_get = 2 * total_bytes + ROUND_UP((heap_size >> 4));
+        // 先将内存池中剩余的碎片空间加入适当 free list 中
+        if(bytes_left > 0) {
+            // 寻找适当free list
+            obj * volatile * my_free_list = free_list + FREELIST_INDEX(bytes_left);
+            // 调整free list
+            ((obj *)start_free)->free_list_link = *my_free_list;
+            *my_free_list = (obj *)start_free;
+        }
+
+        // 配置heap空间，补充内存池空间
+        start_free = (char *)malloc(bytes_to_get);
+        if(0 == start_free) {
+            // malloc() 申请空间失败
+            int i;
+            obj * volatile * my_free_list, *p;
+            // 检查 free list 有没有大的空间分配
+            for(i = size; i <= __MAX_BYTES; i += __ALIGN)
+            {
+                my_free_list = free_list + FREELIST_INDEX(i);
+                p = *my_free_list;
+                if(0 != p) {
+                    // free list 中由内存块未被利用
+                    // 将free list 中的空间归还给内存池
+                    *my_free_list = p->free_list_link;
+                    start_free = (char *) p;
+                    end_free = start_free + i;
+                    // 递归调用自己，调整nbojs分配空间
+                    return (chunk_alloc(size, nbojs));
+                }
+            }
+            // free_list 中也没有内存可用，malloc() 也没有内存能分配
+            end_free = 0;
+            // 调用第一级配置器，使用 out of memory 能不能分配出内存
+            start_free = (char *)malloc_alloc::allocate(bytes_to_get);
+            // malloc_alloc 不能分配时会抛出异常
+        }
+        // 更新内存池大小
+        heap_size += bytes_to_get;
+        end_free = start_free + bytes_to_get;
+        return (chunk_alloc(size, nbojs));
+    }
+}
+
+
 
 
 #endif
