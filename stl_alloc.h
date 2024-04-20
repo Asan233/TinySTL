@@ -343,6 +343,4 @@ char * __default_alloc_template<inst>::chunk_alloc(size_t size, int & nbojs)
 }
 
 
-
-
 #endif
