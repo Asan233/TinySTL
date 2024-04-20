@@ -9,31 +9,31 @@
  * 使用taite_type()
 */
 template<typename InputIterator, typename ForwardIterator>
-inline ForwardIterator unintialized_copy(InputIterator first, InputIterator last, ForwardIterator result)
+inline ForwardIterator uninitialized_copy(InputIterator first, InputIterator last, ForwardIterator result)
 {
     __uninitialized_copy(first, last, result, value_type(result));
 }
 
 template<typename InputIterator, typename ForwardIterator, typename T>
-inline ForwardIterator __unintialized_copy(InputIterator first, InputIterator last, ForwardIterator result, T *)
+inline ForwardIterator __uninitialized_copy(InputIterator first, InputIterator last, ForwardIterator result, T *)
 {
     // trait_typed()实现分辨是否为POD类型
     typedef typename __type_traits<T>::is_POD_type is_POD;
     //__aux实现实际操作，并针对is_POD进行特殊处理
-    __unintialized_copy_aux(first, last, result, is_POD());
+    __uninitialized_copy_aux(first, last, result, is_POD());
 }
 /**
  *  使用重载对POD类型自动调用 true_type()
 */
 template<typename InputIterator, typename ForwardIterator>
-inline ForwardIterator __unintialized_copy_aux(InputIterator first, InputIterator last, ForwardIterator result, __true_type)
+inline ForwardIterator __uninitialized_copy_aux(InputIterator first, InputIterator last, ForwardIterator result, __true_type)
 {
     // POD类型调用STL高级函数
     return copy(first, last, result);
 }
 // __false_type
 template<typename InputIterator, typename ForwardIterator>
-inline ForwardIterator __unintialized_copy_aux(InputIterator first, InputIterator last, ForwardIterator result, __false_type)
+inline ForwardIterator __uninitialized_copy_aux(InputIterator first, InputIterator last, ForwardIterator result, __false_type)
 {
     ForwardIterator cur = result;
     for(; first != last; ++first, ++cur)
@@ -47,7 +47,7 @@ inline ForwardIterator __unintialized_copy_aux(InputIterator first, InputIterato
  *  uninitialized_fill()
 */
 template<typename ForwardIterator, typename T>
-inline void unintialized_fill(ForwardIterator first, ForwardIterator last, const T& x)
+inline void uninitialized_fill(ForwardIterator first, ForwardIterator last, const T& x)
 {
     __uninitialized_fill(first, last, x, value_type(first));
 }
