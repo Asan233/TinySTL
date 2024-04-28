@@ -4,11 +4,16 @@
 #include <stdlib.h>
 #include <iostream>
 
+
+// 构造器前置声明
+template<int inst> class __malloc_alloc_template;
+template<int inst> class __default_alloc_template;
+
 /**
  *  SGI采用二级配置器对内存分配进行管理，为了适配STL的内存分配接口，使用simple_alloc进行一层接口包装
  *  simple_alloc调用底层 Alloc 进行内存配置。
 */
-template<typename T, typename Alloc>
+template<typename T, typename Alloc = __default_alloc_template<0> >
 class simple_alloc
 {
     static T* allocate(size_t n)
@@ -146,7 +151,7 @@ private:
     union obj {
         union obj * free_list_link;
         char client_data[1];
-    }
+    };
 
 private:
     // 16 free-lists
@@ -185,7 +190,7 @@ template<int inst>
 size_t __default_alloc_template<inst>::heap_size = 0;
 
 template<int inst>
-__default_alloc_template<inst>::obj * volatile
+typename __default_alloc_template<inst>::obj * volatile
 __default_alloc_template<inst>::free_list[__NFREELISTS] = 
 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
