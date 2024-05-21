@@ -5,8 +5,9 @@
  *  使用__type_true 和 __type_false 判别是否对该类型有特化版本。
  *  对特化版本使用高效的construct()/destroy()。
 */
-#include<new.h>
-
+#include <new>
+#include "type_traits.h"
+#include "stl_iterator.h"
 
 template<typename T1, typename T2>
 inline void construct(T1* p, const T2& value)
@@ -22,20 +23,20 @@ inline void destroy(T* pointer)
 }
 
 
-/**
- *  接受两个迭代器并对特定类型进行优化dstr()
-*/
-template<typename ForwardIterator>
-inline void destroy(ForwardIterator first, ForwardIterator last)
-{
-    __destroy(first, last, value_type(first));
-}
-
-template<typename ForwardIterator, typename T>
-inline void __destroy(ForwardIterator first, ForwardIterator last, T*)
+template<class ForwardIterator, class T>
+inline void __destroy(ForwardIterator first, ForwardIterator last, T)
 {
     typedef typename __type_traits<T>::has_trivial_destructor trivial_destructor;
     __destroy_aux(first, last, trivial_destructor());
+}
+
+/**
+ *  接受两个迭代器并对特定类型进行优化dstr()
+*/
+template<class ForwardIterator>
+inline void destroy(ForwardIterator first, ForwardIterator last)
+{
+    __destroy( (ForwardIterator)first, (ForwardIterator)last, value_type(first) );
 }
 
 //value type 如果有 non-trivial destructor

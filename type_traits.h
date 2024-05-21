@@ -28,6 +28,7 @@ struct __type_traits {
  *  利用 template 特例化对内置类型特例化
 */
 // char
+template <>
 struct __type_traits<char> {
     typedef __true_type     has_trivial_default_constructor;
     typedef __true_type     has_trivial_copy_constructor;
@@ -37,6 +38,7 @@ struct __type_traits<char> {
 };
 
 //signed char
+template<>
 struct __type_traits<signed char> {
     typedef __true_type     has_trivial_default_constructor;
     typedef __true_type     has_trivial_copy_constructor;
@@ -46,6 +48,7 @@ struct __type_traits<signed char> {
 };
 
 //unsigned char
+template<>
 struct __type_traits<unsigned char> {
     typedef __true_type     has_trivial_default_constructor;
     typedef __true_type     has_trivial_copy_constructor;
@@ -55,6 +58,7 @@ struct __type_traits<unsigned char> {
 };
 
 //short
+template<>
 struct __type_traits<short> {
     typedef __true_type     has_trivial_default_constructor;
     typedef __true_type     has_trivial_copy_constructor;
@@ -64,6 +68,7 @@ struct __type_traits<short> {
 };
 
 //unsigned short
+template<>
 struct __type_traits<unsigned short> {
     typedef __true_type     has_trivial_default_constructor;
     typedef __true_type     has_trivial_copy_constructor;
@@ -73,6 +78,7 @@ struct __type_traits<unsigned short> {
 };
 
 // int
+template<>
 struct __type_traits<int> {
     typedef __true_type     has_trivial_default_constructor;
     typedef __true_type     has_trivial_copy_constructor;
@@ -82,6 +88,7 @@ struct __type_traits<int> {
 };
 
 // unsignde int
+template<>
 struct __type_traits<unsigned int> {
     typedef __true_type     has_trivial_default_constructor;
     typedef __true_type     has_trivial_copy_constructor;
@@ -91,6 +98,7 @@ struct __type_traits<unsigned int> {
 };
 
 // long
+template<>
 struct __type_traits<long> {
     typedef __true_type     has_trivial_default_constructor;
     typedef __true_type     has_trivial_copy_constructor;
@@ -100,6 +108,7 @@ struct __type_traits<long> {
 };
 
 // unsigned long
+template<>
 struct __type_traits<unsigned long> {
     typedef __true_type     has_trivial_default_constructor;
     typedef __true_type     has_trivial_copy_constructor;
@@ -109,6 +118,7 @@ struct __type_traits<unsigned long> {
 };
 
 // float
+template<>
 struct __type_traits<float> {
     typedef __true_type     has_trivial_default_constructor;
     typedef __true_type     has_trivial_copy_constructor;
@@ -118,6 +128,7 @@ struct __type_traits<float> {
 };
 
 // double
+template<>
 struct __type_traits<double> {
     typedef __true_type     has_trivial_default_constructor;
     typedef __true_type     has_trivial_copy_constructor;
@@ -127,6 +138,7 @@ struct __type_traits<double> {
 };
 
 // long double
+template<>
 struct __type_traits<long double> {
     typedef __true_type     has_trivial_default_constructor;
     typedef __true_type     has_trivial_copy_constructor;

@@ -13,9 +13,10 @@ template<int inst> class __default_alloc_template;
  *  SGI采用二级配置器对内存分配进行管理，为了适配STL的内存分配接口，使用simple_alloc进行一层接口包装
  *  simple_alloc调用底层 Alloc 进行内存配置。
 */
-template<typename T, typename Alloc = __default_alloc_template<0> >
+template<class T, class Alloc>
 class simple_alloc
 {
+public:
     static T* allocate(size_t n)
     { return 0 == n ? 0 : (T*) Alloc::allocate(n * sizeof(T)); }
 
@@ -28,6 +29,7 @@ class simple_alloc
     static void deallocate(T* p)
     { Alloc::deallocate(p, sizeof(T)); }
 };
+
 
 /**
  *  第一级内存管理器
@@ -223,7 +225,7 @@ void __default_alloc_template<inst>::deallocate(void *p, size_t n)
 {
     obj *q = (obj *)p;
     obj * volatile *my_free_list;
-    if(n > (size_t) n) {
+    if(n > (size_t) 128) {
         malloc_alloc::deallocate(p, n);
         return;
     }
@@ -247,7 +249,7 @@ void * __default_alloc_template<inst>::refill(size_t n) {
     int nobjs = 20;
     // 调用chunk_alloc()向内存池中请求内存，其中 nobjs 传递引用，返回实际分配的个数
     char * chunk = chunk_alloc(n, nobjs);
-    obj * volatile my_free_list;
+    obj * volatile * my_free_list;
     obj * result;
     obj * current_obj, * next_obj;
     int i;
@@ -269,6 +271,7 @@ void * __default_alloc_template<inst>::refill(size_t n) {
         if(nobjs - 1 == i) {
             // 将最后一块next指针设置为0
             current_obj->free_list_link = 0;
+            break;
         }else {
             current_obj->free_list_link = next_obj;
         }

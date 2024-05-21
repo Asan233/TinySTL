@@ -1,13 +1,7 @@
-#ifndef _STL_ITERATOR_H
-#define _STL_ITERATOR_H
+#ifndef __STL_ITERATOR_H
+#define __STL_ITERATOR_H
 
 #include <cstddef>
-
-/**
- *   为了连接 容器 与 算法，使用 Iterator 迭代器来
- *  由于每个迭代器的类型不同，因此需要设计一种通用方式能够从 Iterator 中提取出特征
- *  type_traits编程方法可以很好地解决这个问题
-*/
 
 // SGI_STL五种迭代器的类型，每种迭代器允许的操作方式都不同
 struct input_iterator_tag {};   //迭代器所指对象不允许外界改变，只读
@@ -17,6 +11,11 @@ struct bidirectional_iterator_tag : public forward_iterator_tag {};  // 允许�
 struct random_iterator_tag : public bidirectional_iterator_tag {}; // 支持随机访问迭代器
 
 
+/**
+ *   为了连接 容器 与 算法，使用 Iterator 迭代器来
+ *  由于每个迭代器的类型不同，因此需要设计一种通用方式能够从 Iterator 中提取出特征
+ *  type_traits编程方法可以很好地解决这个问题
+*/
 
 // 为了避免疏忽，自己定义的迭代器最好都继承这个迭代器标准
 // 定义了 SGI_STL Iterator 应该定义的类型
@@ -70,7 +69,7 @@ struct iterator_traits<const T*> {
 // 调用以下函数可以很好得到 SGI_STL of Iterator 的 category
 template <typename Iterator>
 inline typename iterator_traits<Iterator>::iterator_category
-iterator_category(const Iterator &) {
+iterator_category(const Iterator&) {
     typedef typename iterator_traits<Iterator>::iterator_category category;
     return category();
 }
@@ -83,19 +82,12 @@ value_type(const Iterator &) {
     return value_type();
 }
 
-template <typenam Iterator>
+template <typename Iterator>
 inline typename iterator_traits<Iterator>::difference_type
 distance_type(const Iterator&) {
-    return 
+    typedef typename iterator_traits<Iterator>::difference_type difference_type;
+    return difference_type();
 }
-
-
-
-
-
-
-
-
 
 
 #endif
