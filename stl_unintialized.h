@@ -29,6 +29,7 @@ inline ForwardIterator __uninitialized_copy_aux(InputIterator first, InputIterat
     {
         construct(&*(cur), *first);
     }
+    return result;
 }
 
 template<typename InputIterator, typename ForwardIterator, typename T>

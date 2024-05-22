@@ -9,12 +9,15 @@ template <class T, class Alloc = __default_alloc_template<0> >
 class vector {
 public:
  // SGI 容器类型标准
-    typedef T   value_type;
-    typedef T * iterator;
-    typedef T * pointer;    //由于对vector容器的操作，使用内嵌指针就能够很好的满足
-    typedef T & reference;
-    typedef size_t      size_type;
-    typedef ptrdiff_t   difference_type;
+    using value_type = T;
+    using iterator   = T*;
+    using const_iterator = const T*;    //由于对vector容器的操作，使用内嵌指针就能够很好的满足
+    using pointer    = T*;
+    using const_pointer = const T*;
+    using reference = T&;
+    using const_reference = const T&;
+    using size_type = size_t;
+    using difference_type = ptrdiff_t;
 
 protected:
     // vector的内存配置器
@@ -54,7 +57,7 @@ public:
     bool empty() const { return begin() == end(); }
     reference operator[] (size_type n) { return *(begin() + n); }
 
-    vector() : start(0), finish(0), end_of_storage(0) {}
+    vector() : start(nullptr), finish(nullptr), end_of_storage(nullptr) {}
     vector( size_type n, const T& value ) { fill_initialized(n, value); }
     vector(int n, const T& value) { fill_initialized(n, value); }
     vector(long n, const T& value) { fill_initialized(n, value); }
@@ -67,7 +70,9 @@ public:
     
     reference front() { return *begin(); }
     reference back()  { return *(end() - 1); }
-    void push_back(const T& x) {
+
+    void push_back(const value_type& x) {
+        std::cout << "sss" << std::endl;
         if(finish != end_of_storage) {
             construct(finish, x);
             ++finish;
@@ -75,6 +80,16 @@ public:
         else
             insert_aux(end(), x);
     }
+
+    // 右值完美转发
+    void push_back(value_type&& x) {
+        if(finish != end_of_storage) {
+            construct(finish, std::forward<value_type>(x) );
+        } else {
+            insert_aux(end(), std::forward<value_type>(x));
+        }
+    }
+
     void pop_back() {
         --finish;
         destroy(finish);
@@ -148,17 +163,18 @@ void vector<T, Alloc>::insert(iterator position, size_type n, const T& x) {
 }
 
 template<typename T, typename Alloc>
-void vector<T, Alloc>::insert_aux(iterator position, const T& x) {
+void vector<T, Alloc>::insert_aux(iterator position, const T & x) {
     if(finish != end_of_storage) {  //备用空间还有剩余
         construct(finish, *(finish - 1));
         ++finish;
         T x_copy = x;
-        copy_backward(position, finish-2, finish-1);
+        MYSTL::copy_backward(position, finish - 2, finish - 1);
         *position = x_copy;
     }
     else {  //备用空间已经用完重新申请备用空间
         const size_type old_size = size();
         const size_type len = old_size != 0 ? 2 * old_size : 1;
+
         // 申请新的内存空间
         iterator new_start = data_allocator::allocate(len);
         iterator new_finish = new_start;
