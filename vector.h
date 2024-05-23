@@ -55,7 +55,7 @@ public:
     size_type size() const {  return size_type( finish - start ); }
     size_type capacity()  const   { return size_type(end_of_storage - start ); }
     bool empty() const { return begin() == end(); }
-    reference operator[] (size_type n) { return *(begin() + n); }
+    reference operator[] (size_type n) { return *( begin() + n ); }
 
     vector() : start(nullptr), finish(nullptr), end_of_storage(nullptr) {}
     vector( size_type n, const T& value ) { fill_initialized(n, value); }
@@ -72,7 +72,6 @@ public:
     reference back()  { return *(end() - 1); }
 
     void push_back(const value_type& x) {
-         
         if(finish != end_of_storage) {
             construct(finish, x);
             ++finish;
@@ -81,6 +80,7 @@ public:
             insert_aux(end(), x);
     }
 
+/*
     // 右值完美转发
     void push_back(value_type&& x) {
         if(finish != end_of_storage) {
@@ -89,6 +89,7 @@ public:
             insert_aux(end(), std::forward<value_type>(x));
         }
     }
+*/
 
     void pop_back() {
         --finish;
