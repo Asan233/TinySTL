@@ -72,7 +72,7 @@ public:
     reference back()  { return *(end() - 1); }
 
     void push_back(const value_type& x) {
-        std::cout << "sss" << std::endl;
+         
         if(finish != end_of_storage) {
             construct(finish, x);
             ++finish;
