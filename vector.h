@@ -5,6 +5,11 @@
 #include "stl_unintialized.h"
 #include "algo.h"
 
+/**
+ *  vector 内存配置为如果当前内存空间不足，则重新配置当前内存空间为当前空间的两倍
+*/
+
+
 template <class T, class Alloc = __default_alloc_template<0> >
 class vector {
 public:
