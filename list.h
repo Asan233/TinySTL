@@ -131,16 +131,23 @@ protected:
         }
     }
 
+    // 与链表x交换数据
+    void swap(list& x) 
+    {
+        list_node tmp = node;
+        node = x.node;
+        x.node = node;
+    }
+
 public:
-    iterator begin() { return iterator((link_type)((*node).next)); }
-    iterator end()  { return iterator(node); }
+    iterator begin() const { return iterator((link_type)((*node).next)); }
+    iterator end()  const { return iterator(node); }
 
     bool empty() const { return node->next == node; }
 
-    size_type size() const {
-        size_type result = 0;
-        distance(begin(), end(), result);
-        return result;
+    size_type size() const 
+    {
+        return distance(begin(), end());
     }
 
     reference front() { return *begin(); }
@@ -159,7 +166,7 @@ public:
     }
 
     void push_back(const T& x) { insert(end(), x); }
-    void push_front(cosnt T& x) { insert(begin(), x); }
+    void push_front(const T& x) { insert(begin(), x); }
 
     // 移除Iterator 所指节点
     iterator erase(iterator position);
@@ -211,6 +218,7 @@ public:
 
     // 由于list的特殊性，不能使用STL的sort算法，需要自己定义一个sort算法
     void sort();
+
 };
 
 template<class T, class Alloc>
@@ -219,7 +227,7 @@ typename list<T,Alloc>::iterator list<T, Alloc>::erase(iterator position) {
     link_type prev_node = link_type(position.node->prev);
     prev_node->next = next_node;
     next_node->prev = prev_node;
-    destroy_node(position);
+    destroy_node(position.node);
     return iterator(next_node);
 }
 
@@ -328,6 +336,7 @@ void list<T, Alloc>::sort() {
     // 归并所有桶
     for(int i = 1; i < fill; i++)
         bucket[i].merge(bucket[i - 1]);
+    swap(bucket[fill - 1]);
 }
 
 #endif

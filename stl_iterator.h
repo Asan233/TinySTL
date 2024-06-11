@@ -89,5 +89,36 @@ distance_type(const Iterator&) {
     return difference_type();
 }
 
+/**
+ *   以下为distance()函数组，用于计算两个迭代器之间的距离
+*/
+// InputIterator的特例
+template<class InputIterator>
+inline typename iterator_traits<InputIterator>::difference_type
+_distance(InputIterator first, InputIterator last, input_iterator_tag)
+{
+    typename iterator_traits<InputIterator>::difference_type n = 0;
+    while(first != last) {
+        ++first;
+        ++n;
+    }
+    return n;
+}
+
+template<class RandomAcessIterator>
+inline typename iterator_traits<RandomAcessIterator>::difference_type
+_distance(RandomAcessIterator first, RandomAcessIterator last, random_iterator_tag)
+{
+    return last - first;
+}
+
+template<class InputIterator>
+inline typename iterator_traits<InputIterator>::difference_type
+distance(InputIterator first, InputIterator last)
+{
+    using category = typename iterator_traits<InputIterator>::iterator_category;
+    return _distance(first, last, category());
+}
+
 
 #endif
