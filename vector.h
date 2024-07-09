@@ -10,7 +10,7 @@
 */
 
 
-template <class T, class Alloc = __default_alloc_template<0> >
+template <class T, class Alloc = __default_alloc_template<0>>
 class vector {
 public:
  // SGI 容器类型标准

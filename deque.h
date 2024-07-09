@@ -8,6 +8,7 @@
 #include "stl_alloc.h"
 #include "stl_unintialized.h"
 #include "algo.h"
+#include <iostream>
 
 /**
  *      Deque 采用将离散的每块一小段内存链接起来的方式
@@ -65,7 +66,7 @@ public:
     pointer operator->() const { return &(operator*()); }
     // 计算两个迭代器之间的距离
     difference_type operator-(const self&x) const {
-        return (buffer_size()) * (this.node - x.node - 1) + (this.cur - this.frist) + (x.last - x.cur);
+        return ( buffer_size() ) * ( this->node - x.node - 1) + (this->cur - this->frist) + (x.last - x.cur);
     }
     // 后置与前置加法
     self& operator++() {
@@ -90,8 +91,10 @@ public:
             set_node(node - 1);
             cur = last;
         }
+        --cur;
         return *this;
     }
+
     self operator--(int) {
         self tmp = *this;
         --*this;
@@ -192,6 +195,7 @@ protected:
     void pop_front_aux();
     // 完成insert的实际插入函数
     iterator insert_aux(iterator, const value_type& );
+
     //根据map前端剩余空间，重新分配map
     void reserve_map_at_back (size_type nodes_to_add = 1) {
         if( nodes_to_add + 1 > map_size - (finish.node - map) ){
@@ -200,9 +204,10 @@ protected:
             reallocater_map(nodes_to_add, false);
         }
     }
+
     //根据map后端剩余空间，重新分配map 
     void reserve_map_at_front (size_type nodes_to_add = 1) {
-        if( nodes_to_add > (map - start.node) ) {
+        if( nodes_to_add > (start.node - map) ) {
             // 符合则map前端备用空间不足
             // 需要重新置换分配一个更大的map
             reallocater_map(nodes_to_add, true);
@@ -213,16 +218,17 @@ protected:
 public:
     deque(int n, const value_type& value) : start(), finish(), map(0), map_size(0)
     {
+        //std::cout << iterator::buffer_size() << std::endl;
         fill_initialize(n, value);
     }
 public:
     // basic access
     iterator begin() { return start; }
-    iterator end() { return finish; }
+    iterator end() {  return finish; }
 
     reference operator[] (size_type n) {
         // 调用__deque_iterator<>::operator[]
-        return start[iterator::difference_type(n)];
+        return start[ typename iterator::difference_type(n) ];
     }
 
     reference front() { return *start; }
@@ -273,8 +279,8 @@ public:
 
     void push_front(const value_type& t) {
         if(start.cur != start.frist) {
-            construct(finish.cur - 1, t);
-            --finish.cur;
+            construct(start.cur - 1, t);
+            --start.cur;
         }else {
             // 缓冲区front没有空间了
             push_front_aux(t);
@@ -294,7 +300,7 @@ public:
     void pop_front() {
         if(start.cur != start.last - 1) {
             destroy(start.cur);
-            --start.cur;
+            ++start.cur;
         }else {
             // 最前缓冲区迭代器没有任何元素，工作交由aux处理
             pop_front_aux();
@@ -313,7 +319,8 @@ void deque<T, Alloc, Bufsize>::fill_initialize(size_type n, const value_type& va
     map_pointer cur;
     for(cur = start.node; cur < finish.node; ++cur)
         uninitialized_fill(*cur, *cur + iterator::buffer_size(), value);
-    // 由于尾端nodes可能不需要填满，则不必设置初始值
+
+    // 由于尾端nodes可能不需要填满，则需要特殊设置初值
     uninitialized_fill(finish.frist, finish.cur, value);
 }
 
@@ -393,7 +400,7 @@ void deque<T, Alloc, Bufsize>::push_front_aux(const value_type& t) {
 template <class T, class Alloc, size_t Bufsize>
 void deque<T, Alloc, Bufsize>::pop_back_aux() {
     // 释放最后的一个缓冲区
-    deallocate_node(finish.node);
+    deallocate_node(*finish.node);
     // 调整finish迭代器
     finish.set_node(finish.node - 1);
     finish.cur = finish.last - 1;
@@ -404,7 +411,7 @@ template <class T, class Alloc, size_t Bufsize>
 void deque<T, Alloc, Bufsize>::pop_front_aux() {
     destroy(start.cur);
     // 释放最前的一个缓冲区
-    deallocate_node(start.node);
+    deallocate_node(*start.node);
     // 调整start迭代器
     start.set_node(start.node + 1);
     start.cur = start.frist;
@@ -421,9 +428,9 @@ void deque<T, Alloc, Bufsize>::reallocater_map(size_type node_to_add, bool add_a
     if(map_size > 2 * new_num_nodes) {
         new_start = map + (map_size - new_num_nodes) / 2 + (add_at_front ? node_to_add : 0);
         if(new_start < start.node)
-            copy(start.node, finish.node + 1, new_start);
+            MYSTL::copy(start.node, finish.node + 1, new_start);
         else
-            copy_backward(start.node, finish.node + 1, new_start);
+            MYSTL::copy_backward(start.node, finish.node + 1, new_start);
     }else {
         // 原map没有足够的大小，需要重新分配一个更大的map
         size_type new_map_size = map_size + (map_size > node_to_add ? map_size : node_to_add) + 2;
@@ -431,7 +438,7 @@ void deque<T, Alloc, Bufsize>::reallocater_map(size_type node_to_add, bool add_a
         map_pointer new_map = map_allocator::allocate(new_map_size);
         new_start = new_map + (new_map_size - new_num_nodes) / 2 + (add_at_front ? node_to_add : 0);
         // 拷贝原map内容
-        copy(start.node, finish.node, new_start);
+        MYSTL::copy(start.node, finish.node, new_start);
         // 释放原map
         map_allocator::deallocate(map, map_size);
         // 设置新map大小和指针
@@ -464,7 +471,7 @@ void deque<T, Alloc, Bufsize>::clear() {
         destroy(start.frist, start.last);
         destroy(finish.frist, finish.last);
         // 释放尾部迭代器缓冲区，保留头缓冲区
-        data_allocator::deallocate(finish.node, iterator::buffer_size());
+        data_allocator::deallocate(*finish.node, iterator::buffer_size());
     }else {
         destroy(start.frist, start.last);
     }
@@ -488,6 +495,7 @@ typename deque<T, Alloc, BufSize>::iterator deque<T, Alloc, BufSize>::erase(iter
     }
     return start + index;
 }
+
 // 清除[first, last)所指元素
 template<class T, class Alloc, size_t BufSize>
 typename deque<T, Alloc, BufSize>::iterator deque<T, Alloc, BufSize>::erase(iterator first, iterator last) {
@@ -499,7 +507,7 @@ typename deque<T, Alloc, BufSize>::iterator deque<T, Alloc, BufSize>::erase(iter
         difference_type n = last - first;   // 需要清除的缓冲区长度
         difference_type elems_before = first - start;   // 清楚起始开头位置
         if( elems_before < (size() - n) / 2) {
-            copy_backward(start, first, last);
+            MYSTL::copy_backward(start, first, last);
             iterator new_start = start + n;
             destroy(start, first);
             // 将map缓冲区回收
@@ -507,7 +515,7 @@ typename deque<T, Alloc, BufSize>::iterator deque<T, Alloc, BufSize>::erase(iter
                 data_allocator::deallocate(*cur, iterator::buffer_size());
             start = new_start;
         } else {    // 需要清除区域后后方元素较少
-            copy(last, finish, first);
+            MYSTL::copy(last, finish, first);
             iterator new_finish = finish - n;
             destroy(new_finish, finish);
             // 将map缓冲区回收

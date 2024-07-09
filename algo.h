@@ -12,7 +12,7 @@ namespace MYSTL
 {
     /*****copy*****/
     template <class RandomAccessIterator, class OutputIterator, class Distance>
-    inline OutputIterator __copy_d(RandomAccessIterator first, RandomAccessIterator last, OutputIterator result, Distance *)
+    inline OutputIterator __copy_d(RandomAccessIterator first, RandomAccessIterator last, OutputIterator result, Distance)
     {
         for(Distance n = last - first; n > 0; --n, ++first, ++result)
             *result = *first;
