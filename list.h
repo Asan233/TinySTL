@@ -218,7 +218,6 @@ public:
 
     // 由于list的特殊性，不能使用STL的sort算法，需要自己定义一个sort算法
     void sort();
-
 };
 
 template<class T, class Alloc>

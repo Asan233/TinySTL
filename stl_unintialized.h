@@ -52,22 +52,9 @@ inline ForwardIterator uninitialized_copy(InputIterator first, InputIterator las
  *  uninitialized_fill()
 */
 template<typename ForwardIterator, typename T>
-inline void uninitialized_fill(ForwardIterator first, ForwardIterator last, const T& x)
-{
-    __uninitialized_fill(first, last, x, value_type(first));
-}
-
-template<typename ForwardIterator, typename T, typename T1>
-inline void __uninitialized_fill(ForwardIterator first, ForwardIterator last, const T& x, T1*)
-{
-    typedef typename __type_traits<T1>::is_POD_type is_POD;
-    __uninitialized_fill_aux(first, last, x, is_POD());
-}
-
-template<typename ForwardIterator, typename T>
 inline void __uninitialized_fill_aux(ForwardIterator first, ForwardIterator last, const T& x, __true_type)
 {
-    fill(first, last, x);
+    MYSTL::fill(first, last, x);
 }
 
 template<typename ForwardIterator, typename T>
@@ -78,6 +65,18 @@ inline void __uninitialized_fill_aux(ForwardIterator first, ForwardIterator last
         construct(&*cur, x);
 }
 
+template<typename ForwardIterator, typename T, typename T1>
+inline void __uninitialized_fill(ForwardIterator first, ForwardIterator last, const T& x, T1)
+{
+    typedef typename __type_traits<T1>::is_POD_type is_POD;
+    __uninitialized_fill_aux(first, last, x, is_POD());
+}
+
+template<typename ForwardIterator, typename T>
+inline void uninitialized_fill(ForwardIterator first, ForwardIterator last, const T& x)
+{
+    __uninitialized_fill(first, last, x, value_type(first));
+}
 
 /**
  *  uninitialzed_fill_n()

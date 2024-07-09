@@ -10,8 +10,6 @@
 
 namespace MYSTL 
 {
-
-
     /*****copy*****/
     template <class RandomAccessIterator, class OutputIterator, class Distance>
     inline OutputIterator __copy_d(RandomAccessIterator first, RandomAccessIterator last, OutputIterator result, Distance *)
@@ -77,7 +75,6 @@ namespace MYSTL
         return _copy<InputIterator, OutputIterator>()(first, last, result);
     }
 
-
     /**********copy_backward*********/
     template <class BidirectionalIterator1, class BidirectionalIterator2>
     inline BidirectionalIterator2 __copy_backward(BidirectionalIterator1 first, BidirectionalIterator1 last, BidirectionalIterator2 result, bidirectional_iterator_tag) {
@@ -97,6 +94,14 @@ namespace MYSTL
     template <class BidrectionalIterator1, class BidrectionalIterator2>
     inline BidrectionalIterator2 copy_backward(BidrectionalIterator1  first, BidrectionalIterator1  last, BidrectionalIterator2  result) {
         return _copy_backward<BidrectionalIterator1, BidrectionalIterator2>()(first, last, result);
+    }
+
+    template <class ForwardIterator, class T>
+    inline void fill(ForwardIterator first, ForwardIterator last, const T &x)
+    {
+        for(; first != last; ++first) {
+            *first = x;
+        }
     }
 }
 
