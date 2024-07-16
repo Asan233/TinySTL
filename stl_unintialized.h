@@ -54,15 +54,17 @@ inline ForwardIterator uninitialized_copy(InputIterator first, InputIterator las
 template<typename ForwardIterator, typename T>
 inline void __uninitialized_fill_aux(ForwardIterator first, ForwardIterator last, const T& x, __true_type)
 {
+    std::cout << "__true__type" << std::endl;
     MYSTL::fill(first, last, x);
 }
 
 template<typename ForwardIterator, typename T>
 inline void __uninitialized_fill_aux(ForwardIterator first, ForwardIterator last, const T& x, __false_type)
 {
+    std::cout << "__false_type " << x  << std::endl;
     ForwardIterator cur = first;
     for(; cur != last; ++cur)
-        construct(&*cur, x);
+        construct(&(*cur), x);
 }
 
 template<typename ForwardIterator, typename T, typename T1>
@@ -75,7 +77,7 @@ inline void __uninitialized_fill(ForwardIterator first, ForwardIterator last, co
 template<typename ForwardIterator, typename T>
 inline void uninitialized_fill(ForwardIterator first, ForwardIterator last, const T& x)
 {
-    __uninitialized_fill(first, last, x, value_type(first));
+    __uninitialized_fill(first, last, x, value_type(first) );
 }
 
 /**

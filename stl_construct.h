@@ -8,6 +8,7 @@
 #include <new>
 #include "type_traits.h"
 #include "stl_iterator.h"
+#include <iostream>
 
 template<typename T1, typename T2>
 inline void construct(T1* p, const T2& value)
