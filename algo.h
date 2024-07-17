@@ -50,8 +50,10 @@ namespace MYSTL
 
     // 完全泛化，根据first的迭代器类型不同，使用不用的_copy()
     template <class InputIterator, class OutputIterator>
-    struct _copy {
-        OutputIterator operator()(InputIterator first, InputIterator last, OutputIterator result) {
+    struct _copy 
+    {
+        OutputIterator operator()(InputIterator first, InputIterator last, OutputIterator result) 
+        {
             return __copy(first, last, result, iterator_category(first));
         }
     };
@@ -92,17 +94,37 @@ namespace MYSTL
     };
 
     template <class BidrectionalIterator1, class BidrectionalIterator2>
-    inline BidrectionalIterator2 copy_backward(BidrectionalIterator1  first, BidrectionalIterator1  last, BidrectionalIterator2  result) {
+    inline BidrectionalIterator2 copy_backward(BidrectionalIterator1  first, BidrectionalIterator1  last, BidrectionalIterator2  result) 
+    {
         return _copy_backward<BidrectionalIterator1, BidrectionalIterator2>()(first, last, result);
     }
 
     template <class ForwardIterator, class T>
     inline void fill(ForwardIterator first, ForwardIterator last, const T &x)
     {
-        for(; first != last; ++first) {
+        for(; first != last; ++first) 
+        {
             *first = x;
         }
     }
+
+    /**
+     *   find函数
+    */
+   template<class InputIterator, class value_type>
+   InputIterator __find_d(InputIterator first, InputIterator last, value_type value, input_iterator_tag)
+   {
+        while(first != last && *first != value)
+            ++first;
+        return first;
+   }
+
+   template<class InputIterator, class value_type>
+   InputIterator find(InputIterator first, InputIterator last, value_type value)
+   {
+        // 转交给__find_d()执行迭代器相对应的函数执行
+        return __find_d(first, last, value, iterator_category(first));
+   }
 }
 
 #endif
