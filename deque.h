@@ -251,10 +251,10 @@ public:
     // insert插入函数
     iterator insert(iterator position, const value_type& x) {
         // 插入点在最前面
-        if(position == start.cur) {
+        if(position == start) {
             push_front(x);
             return start;
-        }else if (position == finish.cur) {
+        }else if (position == finish) {
             push_back(x);
             iterator tmp = finish;
             --tmp;
