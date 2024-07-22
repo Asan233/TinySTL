@@ -220,6 +220,11 @@ public:
     {
         fill_initialize(n, value);
     }
+
+    deque() : start(), finish(), map(0), map_size(0) 
+    {
+        create_map_and_nodes(0);
+    }
 public:
     // basic access
     iterator begin() { return start; }
