@@ -5,8 +5,10 @@
 template <typename T, typename Sequence = deque<T> >
 class queue
 {
-    friend bool operator== (const queue& x, const queue& y);
-    friend bool operator< (const queue& x, const queue& y);
+    template<class U,  class S>
+    friend bool operator== (const queue<U, S>& x, const queue<U, S>& y);
+    template<class U, class S>
+    friend bool operator< (const queue<U, S>& x, const queue<U, S>& y);
 
 public:
     typedef typename Sequence::value_type value_type;

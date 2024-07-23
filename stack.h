@@ -8,10 +8,13 @@
  *  stack底层容器使用deque，对deque的进行上一层包装，使其接口规则符合stack
  *  因此stack没有迭代器(iterator)
 */
+
 template <typename T, typename Sequence = deque<T> >
 class stack {
-    friend bool operator==(const stack&, const stack&);
-    friend bool operator<(const stack&, const stack&);
+    template<class U, class S>
+    friend bool operator==(const stack<U, S>&, const stack<U, S>& );
+    template<class U, class S>
+    friend bool operator<(const stack<U, S>&, const stack<U, S>& );
 public:
     typedef typename Sequence::value_type value_type;
     typedef typename Sequence::size_type size_type;
