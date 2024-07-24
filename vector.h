@@ -70,6 +70,7 @@ public:
     size_type size() const {  return size_type( finish - start ); }
     size_type capacity()  const   { return size_type(end_of_storage - start ); }
     bool empty() const { return begin() == end(); }
+    bool empty() { return begin() == end(); }
     reference operator[] (size_type n) { return *( begin() + n ); }
 
     vector() : start(nullptr), finish(nullptr), end_of_storage(nullptr) {}
