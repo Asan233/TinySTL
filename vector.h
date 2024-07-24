@@ -53,6 +53,16 @@ protected:
         return result;
     }
 
+    // [first, last) 区间之间的元素初始化vecot
+    template <class ForwardIterator>
+    void  range_initialize(ForwardIterator first, ForwardIterator last, forward_iterator_tag)
+    {
+        difference_type n = distance(first, last);
+        start = data_allocator::allocate(n);
+        end_of_storage = start + n;
+        finish = uninitialized_copy(first, last, start);
+    }
+
 public:
     // vecotr 容器对外开放的访问接口
     iterator begin() { return start; }
@@ -66,6 +76,10 @@ public:
     vector( size_type n, const T& value ) { fill_initialized(n, value); }
     vector(int n, const T& value) { fill_initialized(n, value); }
     vector(long n, const T& value) { fill_initialized(n, value); }
+
+    template <class InputIterator>
+    vector(InputIterator first, InputIterator last) { range_initialize(first, last, random_iterator_tag()); }     // [first, last)初始化迭代器
+
     explicit vector(size_type n) { fill_initialize(n, T()); }
 
     ~vector() {

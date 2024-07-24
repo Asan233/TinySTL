@@ -17,7 +17,7 @@ template<typename InputIterator, typename ForwardIterator>
 inline ForwardIterator __uninitialized_copy_aux(InputIterator first, InputIterator last, ForwardIterator result, __true_type)
 {
     // POD类型调用STL高级函数
-    return copy(first, last, result);
+    return MYSTL::copy(first, last, result);
 }
 
 // __false_type
@@ -46,7 +46,6 @@ inline ForwardIterator uninitialized_copy(InputIterator first, InputIterator las
 {
     return __uninitialized_copy(first, last, result, value_type(result));
 }
-
 
 /**
  *  uninitialized_fill()
