@@ -385,7 +385,7 @@ public:
 
 private:
     iterator __insert(base_ptr x, base_ptr y, const value_type& v);
-    // link_type __copy(link_type x, link_type p);
+    link_type __copy(link_type x, link_type p);
     // void __erase(link_type x);
 
     void init() {
@@ -399,6 +399,17 @@ private:
 
 public:
     rb_tree(const Compare& comp = Compare() ) : node_count(0), key_compare(comp) { init(); }
+    rb_tree(const rb_tree<Key, Value, KeyOfValue, Compare, Alloc>& rb) : node_count(0), key_compare(Compare()) {
+        init();
+        if(rb.root() == nullptr) return;
+        else {
+            root() = __copy(rb.root(), header);
+            leftmost() = minimum(root());
+            rightmost() = minimum(root());
+        }
+        node_count = rb.node_count;
+    }
+
     ~rb_tree() { 
         clear();
         put_node(header);
@@ -428,11 +439,39 @@ public:
 
     iterator insert_equal(const value_type& v);
     std::pair<iterator, bool> insert_uniqual(const value_type& x);
+
+    // 二叉搜索的查找方式去其他不同，红黑树自己的二叉搜索查找方式
+    iterator find(const Key& k);
 };
 
 template<class Key, class Value, class KeyofValue, class Compare, class Alloc>
 void rb_tree<Key, Value, KeyofValue, Compare, Alloc>::clear() {
 
+}
+
+/**
+ *    二叉搜索树的查找方式
+ *  遇到Key大于的向 "左"走，并更新y
+ *  遇到Key小于向 "右"走，
+ *  找到是否是在大于k的所有节点中，Key最小的一个，如果Key也不大于K则Key == K
+*/
+template<class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
+rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::find(const Key& k) {
+    link_type y = header;
+    link_type x = root();
+    while(x != nullptr) {
+        if(!key_compare( key(x), k ) ) {
+            // key(x) 大于或等于K，向树左边进行搜索
+            y = x;
+            x = left(x);
+        }else {
+            // x 小于 K, 向树右边进行搜索
+            x = right(x);
+        }
+    }
+    iterator j = iterator(y);
+    return ( (j == end()) || key_compare(k, key(j.node)) ) ? end() : j;
 }
 
 template<class Key, class Value, class KeyofValue, class Compare, class Alloc>
@@ -494,9 +533,7 @@ rb_tree<Key, Value, KeyofValue, Compare, Alloc>::__insert(base_ptr x__, base_ptr
         }
 
         if( leftmost() == y ) {
-            //std::cout << "leftmost : " << y->value_field << " " << z->value_field << std::endl;
             leftmost() = z;
-            //std::cout << "lm : " << leftmost()->value_field << std::endl;
         }
     }else {
         z = create_node(v);
@@ -512,6 +549,42 @@ rb_tree<Key, Value, KeyofValue, Compare, Alloc>::__insert(base_ptr x__, base_ptr
     __rb_tree_reblance(z, header->parent);      // 调整红黑树使其符合规则
     ++node_count;       // 结点数增加
     return iterator(z);
+}
+
+
+/**
+ *      将树中的节点从x开始递归地拷贝到新树中，并连接到p节点上
+*/
+template<class Key, class Value, class KeyOfValue, class Compar, class Alloc>
+typename rb_tree<Key, Value, KeyOfValue, Compar, Alloc>::link_type
+rb_tree<Key, Value, KeyOfValue, Compar, Alloc>::__copy(link_type x, link_type p) {
+    link_type top = clone_node(x);
+    top->parent = p;
+
+    // 节点创建错误防止内存泄漏
+    try {
+        // 由于左节点深度一般都比右节点深度大，因此为了性能优化，对右节点使用递归处理
+        // 对左节点使用循环处理
+        if( x->right )
+            top->right = __copy(right(x), top);
+
+        p = top;
+        x = left(x);
+        // 对左节点循环处理
+        while(x != nullptr) {
+            link_type y = clone_node(x);
+            p->left = y;
+            y->parent = p;
+            if( x->right )
+                y->right = __copy(right(x), y);
+            p = y;
+            x = left(x);
+        }
+    } catch(...) {
+        destroy_node(top);
+        throw;
+    }
+    return top;
 }
 
 #endif
