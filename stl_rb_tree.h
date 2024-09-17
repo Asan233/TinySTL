@@ -386,7 +386,7 @@ public:
 private:
     iterator __insert(base_ptr x, base_ptr y, const value_type& v);
     link_type __copy(link_type x, link_type p);
-    // void __erase(link_type x);
+    void __erase(link_type x);
 
     void init() {
         header = get_node();
@@ -446,7 +446,16 @@ public:
 
 template<class Key, class Value, class KeyofValue, class Compare, class Alloc>
 void rb_tree<Key, Value, KeyofValue, Compare, Alloc>::clear() {
-
+    // 使rb_tree回归无结点状态
+    if(node_count != 0) {
+        // 清除除header以外的所有结点
+        __erase(root());
+        // 使rb_tree回归无结点状态
+        leftmost() = header;
+        root() = nullptr;
+        rightmost() = header;
+        node_count = 0;
+    }
 }
 
 /**
@@ -471,7 +480,7 @@ rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::find(const Key& k) {
         }
     }
     iterator j = iterator(y);
-    return ( (j == end()) || key_compare(k, key(j.node)) ) ? end() : j;
+    return ((j == end()) || key_compare(k, key(j.node))) ? end() : j;
 }
 
 template<class Key, class Value, class KeyofValue, class Compare, class Alloc>
@@ -560,7 +569,6 @@ typename rb_tree<Key, Value, KeyOfValue, Compar, Alloc>::link_type
 rb_tree<Key, Value, KeyOfValue, Compar, Alloc>::__copy(link_type x, link_type p) {
     link_type top = clone_node(x);
     top->parent = p;
-
     // 节点创建错误防止内存泄漏
     try {
         // 由于左节点深度一般都比右节点深度大，因此为了性能优化，对右节点使用递归处理
@@ -585,6 +593,19 @@ rb_tree<Key, Value, KeyOfValue, Compar, Alloc>::__copy(link_type x, link_type p)
         throw;
     }
     return top;
+}
+
+template <class Key, class Value, class KeyofValue, class Compare, class Alloc>
+void rb_tree<Key, Value, KeyofValue, Compare, Alloc>::__erase(link_type x) {
+    // 递归地调用__erase清除右孩子结点
+    // 循环地清除左孩子结点
+    // 因为左孩子一般比右孩子多，因此一般右孩子递归，左孩子循环这样可以使代码与效率最平衡
+    while(x != nullptr) {
+        __erase( right(x) );
+        link_type y = left(x);
+        destroy_node(x);
+        x = y;
+    }
 }
 
 #endif
