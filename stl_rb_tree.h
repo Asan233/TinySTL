@@ -343,7 +343,7 @@ protected:
 
     // 销毁结点
     void destroy_node(link_type p) {
-        destroy(&p->value_field);
+        destroy(&(p->value_field));
         put_node(p);
     }
 
@@ -382,6 +382,7 @@ protected:
 
 public:
     typedef __rb_tree_iterator<value_type, reference, pointer> iterator;
+    typedef __rb_tree_iterator<value_type, const_reference, const_pointer> const_iterator;
 
 private:
     iterator __insert(base_ptr x, base_ptr y, const value_type& v);
@@ -431,14 +432,17 @@ public:
 
 public:
     Compare key_comp() const { return key_compare; }
-    iterator begin() { return leftmost(); }
-    iterator end() { return header; }
+    iterator begin() const { return leftmost(); }
+    iterator end() const { return header; }
     bool empty() const { return node_count == 0; }
     size_type size() const { return node_count; }
     void clear();   // 清空整个树
 
     iterator insert_equal(const value_type& v);
+
     std::pair<iterator, bool> insert_uniqual(const value_type& x);
+    template<class InputerIterator>
+    void insert_uniqual(InputerIterator first, InputerIterator last);
 
     // 二叉搜索的查找方式去其他不同，红黑树自己的二叉搜索查找方式
     iterator find(const Key& k);
@@ -522,6 +526,14 @@ rb_tree<Key, Value, KeyofValue, Compare, Alloc>::insert_uniqual(const value_type
         return std::pair<iterator, bool>(__insert(x, y, v), true);
     
     return std::pair<iterator, bool>(j, false);
+}
+
+template<class Key, class Value, class KeyofValue, class Compare, class Alloc>
+template <typename InputIterator>
+void rb_tree<Key, Value, KeyofValue, Compare, Alloc>::insert_uniqual(InputIterator first, InputIterator last)
+{
+    for(; first != last; ++first)
+        insert_uniqual(*first);
 }
 
 template<class Key, class Value, class KeyofValue, class Compare, class Alloc>

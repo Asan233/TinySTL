@@ -1,5 +1,5 @@
-#ifndef _STL_CONSTRUCT_H
-#define _STL_CONSTRUCT_H
+#ifndef __STL_CONSTRUCT_H
+#define __STL_CONSTRUCT_H
 /**
  *  该文件是空间配置器中的构造/析构头文件，负责对内存空间使用高效的construct()和destroy()
  *  使用__type_true 和 __type_false 判别是否对该类型有特化版本。
