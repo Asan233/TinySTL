@@ -70,9 +70,19 @@ public:
     iterator find(const value_type& x) { return t.find(x); }
 
     // // 友元函数定义
-    // friend bool operator== (const set&, const set&);
-    // friend bool operator< (const set&, const set&);
+    friend bool operator== (const set&, const set&);
+    friend bool operator< (const set&, const set&);
     
 };
+
+template<class Key, class Compare, class Alloc>
+inline bool operator==(const set<Key, Compare, Alloc>& x, const set<Key, Compare, Alloc>& y) {
+    return x.t == y.t;
+}
+
+template<class Key, class Compare, class Alloc>
+inline operator<(const set<Key, Compare, Alloc>& x, const set<Key, Compare, Alloc>& y) {
+    return x.t < y.t;
+}
 
 #endif

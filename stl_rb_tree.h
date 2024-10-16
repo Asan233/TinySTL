@@ -14,6 +14,7 @@
 #include "stl_construct.h"
 #include "stl_iterator.h"
 #include <utility>
+#include "stl_pair.h"
 
 typedef bool __rb_tree_color_type;
 const __rb_tree_color_type __rb_tree_red = false;
@@ -440,7 +441,7 @@ public:
 
     iterator insert_equal(const value_type& v);
 
-    std::pair<iterator, bool> insert_uniqual(const value_type& x);
+    pair<iterator, bool> insert_uniqual(const value_type& x);
     template<class InputerIterator>
     void insert_uniqual(InputerIterator first, InputerIterator last);
 
@@ -501,7 +502,7 @@ rb_tree<Key, Value, KeyofValue, Compare, Alloc>::insert_equal(const value_type& 
 }
 
 template<class Key, class Value, class  KeyofValue, class Compare, class Alloc>
-std::pair< typename rb_tree<Key, Value, KeyofValue, Compare, Alloc>::iterator, bool >
+pair<typename rb_tree<Key, Value, KeyofValue, Compare, Alloc>::iterator, bool>
 rb_tree<Key, Value, KeyofValue, Compare, Alloc>::insert_uniqual(const value_type& v)
 {
     link_type y = header;
@@ -518,14 +519,14 @@ rb_tree<Key, Value, KeyofValue, Compare, Alloc>::insert_uniqual(const value_type
     iterator j = iterator(y);
     if(comp)
         if(j == begin())
-            return std::pair<iterator, bool>(__insert(x, y, v), true);
+            return pair<iterator, bool>(__insert(x, y, v), true);
         else
             --j;
 
     if( key_compare(key(j.node), KeyofValue()(v)) )
-        return std::pair<iterator, bool>(__insert(x, y, v), true);
+        return pair<iterator, bool>(__insert(x, y, v), true);
     
-    return std::pair<iterator, bool>(j, false);
+    return pair<iterator, bool>(j, false);
 }
 
 template<class Key, class Value, class KeyofValue, class Compare, class Alloc>
