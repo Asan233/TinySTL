@@ -67,21 +67,26 @@ public:
     // vecotr 容器对外开放的访问接口
     iterator begin() { return start; }
     iterator end()   { return finish;  }
+    const_iterator begin() const { return start; }
+    const_iterator end() const { return finish; }
+
     size_type size() const {  return size_type( finish - start ); }
     size_type capacity()  const   { return size_type(end_of_storage - start ); }
     bool empty() const { return begin() == end(); }
     bool empty() { return begin() == end(); }
+
     reference operator[] (size_type n) { return *( begin() + n ); }
+    const_reference operator[] (size_type n) const { return *(begin() + n); }
 
     vector() : start(nullptr), finish(nullptr), end_of_storage(nullptr) {}
-    vector( size_type n, const T& value ) { fill_initialized(n, value); }
+    vector(size_type n, const T& value ) { fill_initialized(n, value); }
     vector(int n, const T& value) { fill_initialized(n, value); }
     vector(long n, const T& value) { fill_initialized(n, value); }
 
     template <class InputIterator>
     vector(InputIterator first, InputIterator last) { range_initialize(first, last, random_iterator_tag()); }     // [first, last)初始化迭代器
 
-    explicit vector(size_type n) { fill_initialize(n, T()); }
+    explicit vector(size_type n) { fill_initialized(n, T()); }
 
     ~vector() {
         destroy(start, finish);
@@ -122,6 +127,7 @@ public:
         destroy(finish);
         return position;
     }
+
     void resize(size_type new_size, const T& x) {
         if (new_size < size() )
             erase(begin() + new_size, end());
@@ -129,8 +135,33 @@ public:
             insert(end(), new_size - size(), x);
     }
     void resize(size_type new_size) { resize(new_size, T()); }
+
+    // 为vector预留空间
+    void reserve(size_type n) {
+        if(capacity() < n) {     // 容器容量小于需求的容量n
+            const size_type old_size = size();
+            // 新分配地址空间
+            iterator tmp = data_allocator::allocate(n);
+            // 将原地址空间的内容复制到新地址空间
+            uninitialized_copy(start, finish, tmp);
+            // 回收原地址内存
+            destroy(start, finish);
+            deallocate();
+            // 调整vector迭代器
+            start = tmp;
+            finish = start + old_size;
+            end_of_storage = start + n;
+        }
+    }
+
     void clear() { erase(begin(), end()); }
     void insert(iterator position, size_type n, const T& x);
+
+    void swap(vector<T, Alloc>& x) {
+        MYSTL::swap(start, x.start);
+        MYSTL::swap(finish, x.finish);
+        MYSTL::swap(end_of_storage, x.end_of_storage);
+    }
 };
 
 template<typename T, typename Alloc>
@@ -142,18 +173,18 @@ void vector<T, Alloc>::insert(iterator position, size_type n, const T& x) {
             const size_type elems_after = finish - position;
             iterator old_finish = finish;
 
-            if(elems_after > n) {   // 插入点之后元素个数多余插入元素个数
+            if(elems_after > n) {   // 插入点之后元素个数 大于 插入元素个数
                 uninitialized_copy(finish - n, finish, finish);
                 finish += n;
-                copy_backward(position, old_finish - n, old_finish);
+                MYSTL::copy_backward(position, old_finish - n, old_finish);
                 // 从插入点开始插入元素
-                fill(position, n, x_copy);
-            } else {    // 插入点之后元素个数少于插入元素个数
+                MYSTL::fill(position, position + n, x_copy);
+            } else {    // 插入点之后元素个数 少于 插入元素个数
                 uninitialized_fill_n(finish, n - elems_after, x_copy);
                 finish = finish + n - elems_after;
                 uninitialized_copy(position, old_finish, finish);
                 finish += elems_after;
-                fill(position, old_finish, x_copy);
+                MYSTL::fill(position, old_finish, x_copy);
             }
         } else {    // 容器剩余空间容量不能够放入元素
             // 决定新空间的容量
@@ -175,6 +206,7 @@ void vector<T, Alloc>::insert(iterator position, size_type n, const T& x) {
             // 释放以前旧的vector
             destroy(start, finish);
             deallocate();
+
             // 更新vector参数
             start = new_start;
             finish = new_finish;

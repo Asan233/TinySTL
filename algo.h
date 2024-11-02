@@ -10,6 +10,43 @@
 
 namespace MYSTL 
 {
+    template<typename ForwardIterator, typename T, typename Distance>
+    ForwardIterator lower_bound(ForwardIterator first, ForwardIterator last, const T& value, Distance*)
+    {
+        Distance len = 0;
+        len = distance(first, last);
+        Distance half;
+        ForwardIterator middle;
+        while(len > 0)
+        {
+            half = len >> 1;
+            middle = first;
+            advance(middle, half);
+            if(*middle < value)
+            {
+                first = middle;
+                ++first;
+            }else len = half;
+        }
+        return first;
+    }
+
+    // 再一个被排好序的数组中找一个不小于n的数
+    template<typename ForwardIterator, typename T>
+    ForwardIterator lower_bound(ForwardIterator first, ForwardIterator last, const T& value){
+        return lower_bound(first, last, value, distance_type(first));
+    }
+
+    /**
+     *   swap
+    */
+    template<class T>
+    void swap(T& a, T& b){
+        T tmp = a;
+        a = b;
+        b = tmp;
+    }
+
     /*****copy*****/
     template <class RandomAccessIterator, class OutputIterator, class Distance>
     inline OutputIterator __copy_d(RandomAccessIterator first, RandomAccessIterator last, OutputIterator result, Distance)
