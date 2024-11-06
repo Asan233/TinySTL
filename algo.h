@@ -10,6 +10,53 @@
 
 namespace MYSTL 
 {
+    /***
+     *      accumulate  计算init 与 [first, last) 的和，也可以让用户指定一个二元操作符，对inti与 [first, last)进行二元操作后返回
+    */
+    template<typename InputIterator, typename T>
+    T accumulate(InputIterator first, InputIterator last, T init) {
+        for(;first != last; ++first)
+            init += *first;
+        return init;
+    }
+
+    template<typename InputIterator, typename T, typename BinaryOperation>
+    T accumulate(InputIterator first, InputIterator last, T init, BinaryOperation binary_op) {
+        for(; first != last; ++first)
+            binary_op(init, *first);
+        return init;
+    }
+
+    /***
+     *  adjacent_difference 计算[first, last)前一个元素与后一个元素的差，并使用outputIterator
+     * 
+    */
+    template<typename InputIterator, typename OutputIterator>
+    OutputIterator adjacent_difference(InputIterator first, InputIterator last, OutputIterator result) {
+        if(first == last) return result;
+        *result = *first;
+        iterator_traits<InputIterator>::value_type value = *first;
+        while(++first != last) {
+            iterator_traits<InputIterator>::value_type tmp = *first;
+            *++result = tmp - value;
+            value = tmp;
+        }
+        return ++result;
+    }
+
+    template<typename InputeIterator, typename OutputIterator, typename BinaryOperator>
+    OutputIterator adjacent_difference(InputeIterator first, InputeIterator last, OutputIterator result, BinaryOperator binary_op) {
+        if(first == last) return result;
+        *result = *first;
+        iterator_traits<InputeIterator>::value_type value = *first;
+        while(++first != last) {
+            iterator_traits<InputeIterator>::value_type tmp = *first;
+            *++result = binary_op(tmp, value);
+            tmp = value;
+        }
+        return ++result;                       
+    }
+
     template<typename ForwardIterator, typename T, typename Distance>
     ForwardIterator lower_bound(ForwardIterator first, ForwardIterator last, const T& value, Distance*)
     {
