@@ -57,6 +57,53 @@ namespace MYSTL
         return ++result;                       
     }
 
+    /**
+     *  inner_product : 计算两个迭代器所指的内积，并加在init上
+     *  提供两个版本，版本一使用默认乘法算内积，版本二使用用户自定义的二元操作BinaryOperator
+    */
+    template<typename InputIterator1, typename InputIterator2, typenmae T>
+    T inner_producate(InputIterator1 first1, InputIterator1 last1, T init, InputIterator2 first2) {
+        for(; first1 != last1; ++first1, ++first2)
+            init = init + (*first1 * *first2); 
+        return init;
+    }
+
+    template<typename InputIterator1, typename InputIterator2, typename T, typename BinnaryOperator1, typename BinnaryOperator2>
+    T inner_producate(InputIterator1 first1, InputIterator1 last1, T init, BinnaryOperator1 binary_op1,  InputIterator2 first2, BinnaryOperator2 binary_op2) {
+        for(; first1 != last1; ++first1, ++last1)
+            init = binary_op1(init, binary_op2(*first1, *first2));
+        return init;
+    }
+
+
+    /**
+     *  partial_sum : 返回[first, last)的每个未知的前缀和
+     *  提供两个版本：版本一：使用基础的加法做为二元操作， 版本二：使用用户自定义的方法作为二元操作
+    */
+    template<typename InputIterator, typename OutputIterator>
+    OutputIterator partial_sum(InputIterator first, InputIterator last, OutputIterator result) {
+        if(first == last) return result;
+        *result = *first;
+        iterator_traits<InputIterator>::value_type value = *first;
+        while(++first != last) {
+            value = value + *first;
+            *++result = value;
+        }
+        return ++result;
+    }
+
+    template<typename InputIterator, typename OutputIterator, typename BinnaryOperator>
+    OutputIterator partial_sum(InputIterator first, InputIterator last, OutputIterator result, BinnaryOperator binnary_op) {
+        if(first == last) return result;
+        *result = *first;
+        iterator_traits<InputIterator>::value_type value = *first;
+        while(++first != last) {
+            value = binnary_op(value, *first);
+            *++result = value;
+        }
+        return ++result;
+    }
+
     template<typename ForwardIterator, typename T, typename Distance>
     ForwardIterator lower_bound(ForwardIterator first, ForwardIterator last, const T& value, Distance*)
     {

@@ -160,7 +160,7 @@ private:
     static obj * volatile free_list[__NFREELISTS];
     // 根据bytes选择合适的内存块
     static size_t FREELIST_INDEX(size_t bytes) {
-        return ((bytes + __ALIGN - 1) & ~(__ALIGN - 1)) / __ALIGN - 1;
+        return ( (bytes + __ALIGN - 1)) / __ALIGN - 1;
     }
 
     //返回一个大小为n的对象，并可能加入大小为 n 的其他区块到 free_list 中
